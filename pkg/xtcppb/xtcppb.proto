@@ -1,4 +1,4 @@
-// 
+//
 // xTCP - eXport TCP Inet Diagnostic messages
 //
 // These are all the structs relating to the TCP diagnotic module in the kernel
@@ -26,7 +26,7 @@ option go_package = "./pkg/xtcppb";
 // The kernel timespec64 is signed
 // https://github.com/torvalds/linux/blob/458ef2a25e0cbdc216012aa2b9cf549d64133b08/include/linux/time64.h#L13
 // Originally implemented this wrongly using timeval, which is wrong.  Use timespec!!
-// https://golang.org/pkg/syscall/#Timespec   
+// https://golang.org/pkg/syscall/#Timespec
 // https://golang.org/pkg/syscall/#Gettimeofday  <-- Not using
 // https://golang.org/pkg/syscall/#Timeval       <-- Not using
 message timespec64_t {
@@ -136,7 +136,7 @@ message tcp_info {
     optional uint32 data_segs_in               = 47; // RFC4898 tcpEStatsDataSegsIn
     optional uint32 data_segs_out              = 48; // RFC4898 tcpEStatsDataSegsOut
 
-    optional uint64 delivery_rate              = 49; 
+    optional uint64 delivery_rate              = 49;
 
     optional uint64 busy_time                  = 50; // Time (usec) busy sending data
     optional uint64 rwnd_limited               = 51; // Time (usec) limited by receive window

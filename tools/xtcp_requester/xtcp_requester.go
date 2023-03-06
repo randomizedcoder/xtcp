@@ -29,8 +29,7 @@ func main() {
 	nlmsg_seqs := [...]int{0, 666, 123456}
 	nlmsg_pids := [...]int{0, 666}
 
-	var packetBuffer []byte
-	packetBuffer = make([]byte, syscall.Getpagesize()*8)
+	packetBuffer := make([]byte, syscall.Getpagesize()*8)
 
 	var testNumber int
 	for i := 0; i < 1; i++ {
@@ -38,7 +37,7 @@ func main() {
 			for _, nlmsg_len := range nlmsg_lens {
 				for _, nlmsg_seq := range nlmsg_seqs {
 					for _, nlmsg_pid := range nlmsg_pids {
-						netlinkRequest = xtcpnl.BuildNetlinkSockDiagRequest(&addressFamily, make_size, nlmsg_len, nlmsg_seq, nlmsg_pid, 0xFF, 0)
+						netlinkRequest = xtcpnl.BuildNetlinkSockDiagRequest(&addressFamily, make_size, uint32( nlmsg_len), uint32(nlmsg_seq), uint32(nlmsg_pid), 0xFF, 0)
 						xtcpnl.SendNetlinkDumpRequest(socketFileDescriptor, socketAddress, netlinkRequest)
 						fmt.Println("requester i:", i, "\ttestNumber:", testNumber, "\taddressFamily:", addressFamily, "\tmake_size:", make_size, "\tnlmsg_len:", nlmsg_len, "\tnlmsg_seq:", nlmsg_seq, "\tnlmsg_pid:", nlmsg_pid)
 						testNumber++
@@ -49,9 +48,9 @@ func main() {
 								fmt.Println("packetBufferInSize", packetBufferInSize)
 							}
 
-							if nerr, ok := err.(net.Error); ok && nerr.Temporary() {
+							if err, ok := err.(net.Error); ok && err.Timeout() {
 								fmt.Println("syscall.Recvfrom timeout\tx:", x)
-								break //This is where we can break out from a timeout if the socket has timeout configured
+								break // This is where we can break out from a timeout if the socket has timeout configured
 							}
 							if err != nil {
 								fmt.Println("unix.Recvfrom:", err)

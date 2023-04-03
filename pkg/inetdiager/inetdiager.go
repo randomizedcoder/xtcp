@@ -362,8 +362,9 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 		// The following giant switch is based on constants from an enum defined as follows
 		// This code might/or-not be improved by defining this list as constants, but for now, just using comments
 		// If the enum changes, this is going to break anyway, so unless we cleverly pulled in the enum somehow
-		// we're going ot have to touch this code, so commments are ok for now.
+		// we're going to have to touch this code, so commments are ok for now.
 
+		// https://github.com/torvalds/linux/blob/master/include/uapi/linux/inet_diag.h#L134
 		// https://github.com/torvalds/linux/blob/29d9f30d4ce6c7a38745a54a8cddface10013490/include/uapi/linux/inet_diag.h#L133
 		// INET_DIAG_NONE 0
 		// INET_DIAG_MEMINFO 1
@@ -384,6 +385,12 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 		// INET_DIAG_BBRINFO 16
 		// INET_DIAG_CLASS_ID 17
 		// INET_DIAG_MD5SIG 18
+		// INET_DIAG_ULP_INFO 19
+		// INET_DIAG_SK_BPF_STORAGES 20
+		// INET_DIAG_CGROUP_ID 21
+		// INET_DIAG_SOCKOPT 22
+		// 23
+		// __INET_DIAG_MAX 24
 
 		var attributesBytesRead int //this variable is used to allow the padding, if the structs in the kernel grow, or for 32bit alignment
 		switch nlattr.NlaType {
@@ -527,11 +534,40 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_TOS\t*typeOfService:", *typeOfService)
 			}
-			break	
+			break
+		// INET_DIAG_MD5SIG	
 		case 18:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
-				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_LOCALS", "\tERROR!!  TODO Fix me")
+				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_MD5SIG", "\tNot handling this type yet TODO Fix me")
+			}
+			break
+		// INET_DIAG_ULP_INFO
+		case 19:
+			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
+			if debugLevel > 10 {
+				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_ULP_INFO", "\tNot handling this type yet TODO Fix me")
+			}
+			break
+		// INET_DIAG_SK_BPF_STORAGES
+		case 20:
+			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
+			if debugLevel > 10 {
+				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SK_BPF_STORAGES", "\tNot handling this type yet TODO Fix me")
+			}
+			break
+		// INET_DIAG_CGROUP_ID
+		case 21:
+			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
+			if debugLevel > 10 {
+			fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_CGROUP_ID", "\tNot handling this type yet TODO Fix me")
+			}
+			break	
+		// INET_DIAG_SOCKOPT
+		case 22:
+			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
+			if debugLevel > 10 {
+			fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SOCKOPT", "\tNot handling this type yet TODO Fix me")
 			}
 			break	
 		default:

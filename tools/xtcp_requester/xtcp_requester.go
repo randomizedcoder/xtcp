@@ -37,7 +37,7 @@ func main() {
 			for _, nlmsg_len := range nlmsg_lens {
 				for _, nlmsg_seq := range nlmsg_seqs {
 					for _, nlmsg_pid := range nlmsg_pids {
-						netlinkRequest = xtcpnl.BuildNetlinkSockDiagRequest(&addressFamily, make_size, uint32( nlmsg_len), uint32(nlmsg_seq), uint32(nlmsg_pid), 0xFF, 0)
+						netlinkRequest = xtcpnl.BuildNetlinkSockDiagRequest(&addressFamily, make_size, uint32(nlmsg_len), uint32(nlmsg_seq), uint32(nlmsg_pid), 0xFF, 0)
 						xtcpnl.SendNetlinkDumpRequest(socketFileDescriptor, socketAddress, netlinkRequest)
 						fmt.Println("requester i:", i, "\ttestNumber:", testNumber, "\taddressFamily:", addressFamily, "\tmake_size:", make_size, "\tnlmsg_len:", nlmsg_len, "\tnlmsg_seq:", nlmsg_seq, "\tnlmsg_pid:", nlmsg_pid)
 						testNumber++

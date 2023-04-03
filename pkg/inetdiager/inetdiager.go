@@ -298,7 +298,7 @@ func buildProto(id int, af *uint8, timeSpec *syscall.Timespec, hostname *string,
 		XtcpRecord.ClassId = &classID32
 	}
 
-	if report == true {
+	if report {
 		if debugLevel > 100 {
 			fmt.Println("inetdiager:", id, "\taf:", *af, "XtcpRecord.Hostname:", *XtcpRecord.Hostname)
 			fmt.Println("inetdiager:", id, "\taf:", *af, "XtcpRecord.EpochTime.Sec:", *XtcpRecord.EpochTime.Sec)
@@ -402,12 +402,10 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\texit the NetLink attributes loops!! attribuesCount:", attribuesCount)
 			}
 			inetdiagMsgComplete = true
-			break
 		//INET_DIAG_MEMINFO
 		// https://github.com/torvalds/linux/blob/29d9f30d4ce6c7a38745a54a8cddface10013490/include/uapi/linux/inet_diag.h#L174
 		case 1:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_MEMINFO", inetdiagMsgReader, meminfo, netlinkAttributeDataLength, af)
-			break
 		//INET_DIAG_INFO -- <<<--- THIS IS THE BIG IMPORTANT ONE
 		// The payload associated with this attribute is specific to the address family.  For TCP sockets, it is an object of type struct tcp_info.
 		case 2:
@@ -424,14 +422,12 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_INFO\ttcpinfo:", tcpinfo)
 			}
 			// TODO add delivery rate app limited and fast open here
-			break
 		//INET_DIAG_VEGASINFO
 		case 3:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SKV6ONLY", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_CONG
 		case 4:
 			//Unlike most of the attributes, the congestion algorithm is variable length null terminated array of chars (C string)
@@ -439,31 +435,27 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_CONG", inetdiagMsgReader, &congestionAlgorithmBuffer, netlinkAttributeDataLength, af)
 			if bytesRead > 0 {
 				// storing only the first three chars of the string, so the map lookup works in buildProto
-				*congestionAlgorithm = string(congestionAlgorithmBuffer[:len(congestionAlgorithmBuffer)])[:3]
+				*congestionAlgorithm = string(congestionAlgorithmBuffer[:])[:3]
 				if debugLevel > 100 {
 					fmt.Println("inetdiager:", id, "\taf:", *af, "\tstring(congestionAlgorithmBuffer)[:3]:", *congestionAlgorithm)
 				}
 			}
-			break
 		//INET_DIAG_TOS
 		case 5:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_TOS", inetdiagMsgReader, typeOfService, netlinkAttributeDataLength, af)
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_TOS\t*typeOfService:", *typeOfService)
 			}
-			break
 		//INET_DIAG_TCLASS
 		// The payload associated with this attribute is a __u8  value which is the TClass of the socket.  IPv6 sockets
 		// only.  For LISTEN and CLOSE sockets, this is followed by INET_DIAG_SKV6ONLY attribute with associated __u8
 		// payload value meaning whether the socket is IPv6-only or not.
 		case 6:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "tINET_DIAG_TCLASS", inetdiagMsgReader, trafficClass, netlinkAttributeDataLength, af)
-			break
 		//INET_DIAG_SKMEMINFO
 		// https://github.com/torvalds/linux/blob/a811c1fa0a02c062555b54651065899437bacdbe/net/core/sock.c#L3226
 		case 7:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_SKMEMINFO", inetdiagMsgReader, skmeminfo, netlinkAttributeDataLength, af)
-			break
 		//UNIX_DIAG_SHUTDOWN
 		// The payload associated with this attribute is __u8 value which represents bits of shutdown(2) state.
 		case 8:
@@ -471,21 +463,18 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SHUTDOWN\t*shutdownState:", *shutdownState)
 			}
-			break
 		//--- NOT INET_DIAG_DCINFO - no body uses this UDP protocol
 		case 9:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_DCINFO", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_PROTOCOL
 		case 10:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_PROTOCOL", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_SKV6ONLY
 		// TODO per the comment in INET_DIAG_TCLASS above, need to handle this case for IPv6 LISTEN and CLOSE sockets
 		case 11:
@@ -493,39 +482,33 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SKV6ONLY", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_LOCALS
 		case 12:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_LOCALS", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_PEERS
 		case 13:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_PEERS", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_PAD
 		case 14:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_PAD", "\tERROR!!  TODO Fix me")
 			}
-			break
 		//INET_DIAG_MARK
 		case 15:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_MARK", inetdiagMsgReader, mark, netlinkAttributeDataLength, af)
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_MARK\t*mark:", *mark)
 			}
-			break
 		//INET_DIAG_BBRINFO
 		case 16:
 			inetdiagMsgComplete, attributesBytesRead = binaryReadWithErrorHandling(id, "INET_DIAG_BBRINFO", inetdiagMsgReader, bbrinfo, netlinkAttributeDataLength, af)
-			break
 		// INET_DIAG_CLASS_ID
 		// https://github.com/torvalds/linux/blob/29d9f30d4ce6c7a38745a54a8cddface10013490/include/linux/inet_diag.h#L74
 		// + nla_total_size(4); /* INET_DIAG_CLASS_ID *
@@ -534,48 +517,41 @@ func processNetlinkAttributes(id int, af *uint8, inetdiagMsgReader *bytes.Reader
 			if debugLevel > 100 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_TOS\t*typeOfService:", *typeOfService)
 			}
-			break
-		// INET_DIAG_MD5SIG	
+		// INET_DIAG_MD5SIG
 		case 18:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_MD5SIG", "\tNot handling this type yet TODO Fix me")
 			}
-			break
 		// INET_DIAG_ULP_INFO
 		case 19:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_ULP_INFO", "\tNot handling this type yet TODO Fix me")
 			}
-			break
 		// INET_DIAG_SK_BPF_STORAGES
 		case 20:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SK_BPF_STORAGES", "\tNot handling this type yet TODO Fix me")
 			}
-			break
 		// INET_DIAG_CGROUP_ID
 		case 21:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
-			fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_CGROUP_ID", "\tNot handling this type yet TODO Fix me")
+				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_CGROUP_ID", "\tNot handling this type yet TODO Fix me")
 			}
-			break	
 		// INET_DIAG_SOCKOPT
 		case 22:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
-			fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SOCKOPT", "\tNot handling this type yet TODO Fix me")
+				fmt.Println("inetdiager:", id, "\taf:", *af, "\tINET_DIAG_SOCKOPT", "\tNot handling this type yet TODO Fix me")
 			}
-			break	
 		default:
 			inetdiagMsgComplete, attributesBytesRead = notDecodingThisAttributeTypeYet()
 			if debugLevel > 10 {
 				fmt.Println("inetdiager:", id, "\taf:", *af, "\tnlattr.NlaType default??", nlattr.NlaType, "\tERROR!!  TODO Fix me")
 			}
-			break
 		}
 		//switch nlattr.NlaType {
 
@@ -732,7 +708,7 @@ func Inetdiager(id int, af *uint8, in <-chan netlinker.TimeSpecandInetDiagMessag
 		// If the timer is up, then it sends summary stats over the channel
 		// Otherwise, it just rolls on though doing nothing.
 		select {
-		case _ = <-statsTicker.C:
+		case <-statsTicker.C:
 			currentStats = inetdiagerstater.InetdiagerStatsWrapper{
 				Af: *af,
 				ID: id,
@@ -840,8 +816,7 @@ func Inetdiager(id int, af *uint8, in <-chan netlinker.TimeSpecandInetDiagMessag
 					printInetDiagMsg(id, af, inetdiagMsg, sourceIP, destinationIP)
 				}
 
-				var XtcpRecord *xtcppb.XtcpRecord
-				XtcpRecord = buildProto(id, af, &timeSpecandInetDiagMessage.TimeSpec, &hostname, &inetdiagMsg, sourceIPbytes, destinationIPbytes, &meminfo, &tcpinfo, &congestionAlgorithm, &shutdownState, &typeOfService, &trafficClass, &skmeminfo, &bbrinfo, &classID, &sndWscale, &rcvWscale, true, &deliveryRateAppLimited, &fastOpenClientFail)
+				XtcpRecord := buildProto(id, af, &timeSpecandInetDiagMessage.TimeSpec, &hostname, &inetdiagMsg, sourceIPbytes, destinationIPbytes, &meminfo, &tcpinfo, &congestionAlgorithm, &shutdownState, &typeOfService, &trafficClass, &skmeminfo, &bbrinfo, &classID, &sndWscale, &rcvWscale, true, &deliveryRateAppLimited, &fastOpenClientFail)
 
 				// https://pkg.go.dev/google.golang.org/protobuf/proto?tab=doc#Marshal
 				XtcpRecordBinary, marshalErr := proto.Marshal(XtcpRecord)

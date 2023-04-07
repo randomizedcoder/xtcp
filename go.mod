@@ -2,6 +2,25 @@ module github.com/Edgio/xtcp
 
 go 1.20
 
+
+replace github.com/Edgio/xtcp/pkg/misc => ./pkg/misc
+
+replace github.com/Edgio/xtcp/pkg/cliflags => ./pkg/cliflags
+
+replace github.com/Edgio/xtcp/pkg/xtcppb => ./pkg/xtcppb
+
+replace github.com/Edgio/xtcp/pkg/poller => ./pkg/poller
+
+replace github.com/Edgio/xtcp/pkg/netlinker => ./pkg/netlinker
+
+replace github.com/Edgio/xtcp/pkg/inetdiager => ./pkg/inetdiager
+
+replace github.com/Edgio/xtcp/pkg/pollerstater => ./pkg/pollerstater
+
+replace github.com/Edgio/xtcp/pkg/inetdiagerstater => ./pkg/inetdiagerstater
+
+replace github.com/Edgio/xtcp/pkg/netlinkerstater => ./pkg/netlinkerstater
+
 require (
 	github.com/go-cmd/cmd v1.4.1
 	github.com/nsqio/go-nsq v1.1.0

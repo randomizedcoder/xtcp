@@ -47,6 +47,7 @@ bench:
 	go test -v ./cmd/xtcp/ -bench=.
 
 xtcp:
+	rm -f ./cmd/xtcp/xtcp
 	rm -f ./bundle/bin/xtcp
 	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp/xtcp.go
 
@@ -54,12 +55,14 @@ proto:
 	protoc ./pkg/xtcppb/*.proto --go_out=.
 
 fast:
+	rm -f ./cmd/xtcp/xtcp
 	rm -f ./bundle/bin/xtcp
 	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp/xtcp.go
 
 clean:
+	rm -f ./cmd/xtcp/xtcp
 	rm -f ./xtcp
-	rm -f ./bundle/bin/xtcp 
+	rm -f ./bundle/bin/xtcp
 	rm -f ./pkg/xtcppb/*.pb.*
 	rm -f ./tools/xtcp_debug_server/xtcp_debug_server
 	rm -f ./tools/xtcp_requester/xtcp_requester
@@ -85,7 +88,12 @@ update:
 	go get github.com/pkg/profile
 	go get github.com/golang/protobuf
 	go get github.com/prometheus/client_golang
-	
+
+#---------------------------------------
+# docker
+docker:
+	sudo docker build -t xtcp -f ./build/containers/Dockerfile .
+	sudo docker image ls
 
 #---------------------------------------
 # Some testing tools

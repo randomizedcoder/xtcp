@@ -189,7 +189,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *single == true {
+	if *single {
 		*netlinkers4 = 1
 		*netlinkers6 = 1
 		*inetdiagers4 = 1
@@ -247,9 +247,8 @@ func main() {
 	// Start background polling job to cleanly exit if the return code of executing 'disablerCommand' is "1"
 	// Using a channel here to block waiting for disabler.Disabler to complete once before proceeding passed this main block
 	// Otherwise, golang is so fast that it races ahead and actually starts polling etc below before this check completes
-	var disablerCheckComplete chan struct{}
-	disablerCheckComplete = make(chan struct{}, 2)
-	if *cliFlags.NoDisabler == false {
+	disablerCheckComplete := make(chan struct{}, 2)
+	if !*cliFlags.NoDisabler {
 		go disabler.Disabler(cliFlags, disablerCheckComplete, false)
 		// block waiting for disabler on the first iteration
 		<-disablerCheckComplete
@@ -304,10 +303,20 @@ func main() {
 			EnableOpenMetrics: true,
 		},
 	))
-	go http.ListenAndServe(*promListen, nil)
+
+	go func() {
+		err := http.ListenAndServe(*promListen, nil)
+		if err != nil {
+			if debugLevel > 10 {
+				fmt.Println("Prometheus web server exited with error")
+			}
+		}
+	}()
+
 	if debugLevel > 10 {
 		fmt.Println("Prometheus http listener started on:", *promListen, *promPath)
 	}
+
 	// Start the stats workers
 	// Please note theres a single (x1) worker of each type currently,
 	// because making the prometheus counters concurrently is a little tricky
@@ -319,16 +328,13 @@ func main() {
 	// xtcpstater reports on the over all xtcp process, via "systemctl status" and "ps"
 	go xtcpstater.XTCPStater(cliFlags)
 
-	var pollerStaterCh chan pollerstater.PollerStats
-	pollerStaterCh = make(chan pollerstater.PollerStats, *cliFlags.PromPollerChSize)
+	pollerStaterCh := make(chan pollerstater.PollerStats, *cliFlags.PromPollerChSize)
 	go pollerstater.PollerStater(pollerStaterCh, cliFlags)
 
-	var netlinkerStaterCh chan netlinkerstater.NetlinkerStatsWrapper
-	netlinkerStaterCh = make(chan netlinkerstater.NetlinkerStatsWrapper, *cliFlags.PromNetlinkerChSize)
+	netlinkerStaterCh := make(chan netlinkerstater.NetlinkerStatsWrapper, *cliFlags.PromNetlinkerChSize)
 	go netlinkerstater.NetlinkerStater(netlinkerStaterCh, cliFlags)
 
-	var inetdiagerStaterCh chan inetdiagerstater.InetdiagerStatsWrapper
-	inetdiagerStaterCh = make(chan inetdiagerstater.InetdiagerStatsWrapper, *cliFlags.PromInetdiagerChSize)
+	inetdiagerStaterCh := make(chan inetdiagerstater.InetdiagerStatsWrapper, *cliFlags.PromInetdiagerChSize)
 	go inetdiagerstater.InetdiagerStater(inetdiagerStaterCh, cliFlags)
 
 	if debugLevel > 10 {
@@ -336,8 +342,7 @@ func main() {
 	}
 
 	// Hostname is required for the XtcpRecord.hostname proto, and called here once rather than per address family in the pollers
-	var hostname string
-	hostname = misc.GetHostname()
+	hostname := misc.GetHostname()
 	if debugLevel > 10 {
 		fmt.Println("Main hostname:", hostname)
 	}
@@ -366,5 +371,4 @@ func main() {
 	if debugLevel > 10 {
 		fmt.Println("Main done")
 	}
-	return
 }

@@ -22,7 +22,7 @@ test:
 	go test -v ./pkg/xtcpstater/
 	go test -v ./pkg/netlinker/
 	go test -v ./pkg/misc/
-	go test -v ./cmd/
+	go test -v ./cmd/xtcp/
 
 	# das@das-dell5580:$ /usr/bin/find . -name '*_test.go'
 	# ./pkg/inetdiager/inetdiager_test.go
@@ -31,7 +31,7 @@ test:
 	# ./pkg/xtcpstater/xtcpstater_test.go
 	# ./pkg/netlinker/netlinker_test.go
 	# ./pkg/misc/misc_test.go
-	# ./cmd/xtcp_test.go
+	# ./cmd/xtcp/xtcp_test.go
 
 bench:
 	#go test ./... -bench=.
@@ -44,22 +44,21 @@ bench:
 	go test -v ./pkg/xtcpstater/ -bench=.
 	go test -v ./pkg/netlinker/ -bench=.
 	go test -v ./pkg/misc/ -bench=.
-	go test -v ./cmd/ -bench=.
+	go test -v ./cmd/xtcp/ -bench=.
 
 xtcp:
 	rm -f ./bundle/bin/xtcp
-	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp.go
+	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp/xtcp.go
 
 proto:
 	protoc ./pkg/xtcppb/*.proto --go_out=.
 
 fast:
 	rm -f ./bundle/bin/xtcp
-	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp.go
+	go build -ldflags "-X main.commit=${COMMIT} -X main.date=${DATE}" -o ./bundle/bin/xtcp ./cmd/xtcp/xtcp.go
 
 clean:
 	rm -f ./xtcp
-	rm -f ./cmd/xtcp
 	rm -f ./bundle/bin/xtcp 
 	rm -f ./pkg/xtcppb/*.pb.*
 	rm -f ./tools/xtcp_debug_server/xtcp_debug_server
@@ -106,7 +105,7 @@ lots:
 
 # go race detector.  seems to just run more slowly.
 race:
-	go run -race ./cmd/xtcp.go
+	go run -race ./cmd/xtcp/xtcp.go
 
 # Lazy helper alias for scp
 scp:

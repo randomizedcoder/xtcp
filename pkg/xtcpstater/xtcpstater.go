@@ -170,7 +170,7 @@ func GetPSStats(pid string, psPath string, testing bool, testfile string) (pcpu 
 		lines = systemctlOut.Stdout
 	}
 
-	// please note that w'er using a loop even though there's only one line :)
+	// please note that we're using a loop even though there's only one line :)
 	for i, line := range lines {
 		if debugLevel > 100 {
 			fmt.Println("i:", i, "\tline:", line)
@@ -280,8 +280,9 @@ func XTCPStater(cliFlags cliflags.CliFlags) bool {
 	ticker := time.NewTicker(*cliFlags.XTCPStaterFrequency)
 	for pollingLoops := 0; ; pollingLoops++ {
 
-		pid, tasks = GetSystemCtlStatus(*cliFlags.XTCPStaterSystemctlPath, false, "") // tests false, so no test file
-		pcpu, pmem, rss, sz = GetPSStats(pid, *cliFlags.XTCPStaterPsPath, false, "")
+		// removed by dave to stop calling out to features not available in the container
+		//pid, tasks = GetSystemCtlStatus(*cliFlags.XTCPStaterSystemctlPath, false, "") // tests false, so no test file
+		//pcpu, pmem, rss, sz = GetPSStats(pid, *cliFlags.XTCPStaterPsPath, false, "")
 
 		// https://pkg.go.dev/runtime#ReadMemStats
 		runtime.ReadMemStats(mS)

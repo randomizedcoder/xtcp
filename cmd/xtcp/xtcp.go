@@ -120,7 +120,7 @@ func main() {
 	happyIstaterReportModulus := flag.Int("happyIstaterReportModulus", 10000, "xtcp inetdiagstater emits some non-error/happy log messages, and this modules controls the rate. Default = 1000")
 
 	// Variables relating to the "disabler" go routine which polls for if xtcp should be running
-	noDisabler := flag.Bool("noDisabler", false, "Flag to disable the Disabler poller, default false = Disabler enabled")
+	noDisabler := flag.Bool("noDisabler", true, "Flag to disable the Disabler poller")
 	disablerFrequency := flag.Duration("disablerFrequency", 60*time.Second, "Disabler polling frequency. Default 60 seconds")
 	disablerCommand := flag.String("disablerCommand", "echo", "Command to run/poll to check if xtcp should exit(0)")
 	disablerArgument1 := flag.String("disablerArgument1", "$XTCP_DISABLED", "Argument to disablerCommand")
